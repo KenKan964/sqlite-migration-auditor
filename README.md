@@ -1,49 +1,157 @@
-# SQLite Migration Auditor 0.1.0 candidate
+# SQLite Migration Auditor
 
-Python 3.11+ standard library; trusted local developer SQL only. Publication HOLD: CI not run.
+**Check a SQLite migration against explicit data-preservation rules — on a copy, before touching your source database.**
+
+**v0.1.0 · Experimental · Python 3.11+ · Standard library only · MIT License**
+
+**English** | [日本語](README_ja.md)
+
+## What is it?
+
+SQLite Migration Auditor is a free command-line tool for developers who need to check whether a proposed SQLite schema or data migration preserves the records and values they care about.
+
+A migration can complete without a SQLite integrity error while still deleting a business record, changing a protected value, or introducing an unexpected schema change. This tool checks those expectations rather than relying on database integrity checks alone.
+
+It opens the source database in SQLite read-only mode, creates a separate test database using SQLite's Backup API, runs **trusted local migration SQL on that test copy**, and writes a machine-readable report.
+
+> **Scope:** An experimental, policy-based migration test for controlled local workloads — not a production migration engine, a hostile-SQL sandbox, or a guarantee of zero data loss.
+
+## What it checks
+
+| Check | What the auditor reports |
+| --- | --- |
+| Business records | Missing records matched by a declared unique business ID |
+| Protected values | Changed values in columns configured for preservation or supported transformation |
+| Foreign keys | Violations found by SQLite's `foreign_key_check` |
+| Database integrity | Findings from SQLite's `integrity_check` |
+| Schema contract | Unexpected changes relative to an explicitly reviewed expected schema |
+| Unexpected additions | New records where the policy does not permit them |
+| Migration execution | SQL failures and cases where the outcome cannot be verified |
+
+The policy specifies which tables and columns matter. The auditor does **not** claim to validate every table's business data automatically.
+
+## Quick start
+
+**Requirements:** Python 3.11 or newer. No third-party Python packages.
+
+Run the built-in synthetic example from the repository root:
 
 ```sh
-python sma.py demo --out new-demo
-python sma.py run --db samples/source.sqlite --sql samples/migration.sql --policy samples/policy.json --out new-trial
+python sma.py demo --out sma-demo-001
+```
+
+The command creates a small synthetic source database and migration, runs the audit on a copy, and writes:
+
+```text
+sma-demo-001/
+  source.sqlite
+  migration.sql
+  policy.json
+  trial/
+    trial.sqlite
+    report.json
+```
+
+Read `sma-demo-001/trial/report.json` or the JSON printed to the terminal. Use a **new output directory** for each run: existing destinations are intentionally rejected.
+
+To audit the checked-in synthetic sample instead:
+
+```sh
+python sma.py run \
+  --db samples/source.sqlite \
+  --sql samples/migration.sql \
+  --policy samples/policy.json \
+  --out sma-audit-001
+```
+
+The command above uses line continuations for POSIX shells. On Windows, enter the same command on one line:
+
+```text
+python sma.py run --db samples/source.sqlite --sql samples/migration.sql --policy samples/policy.json --out sma-audit-001
+```
+
+These examples are deliberately small and do not use production data.
+
+## Reading a result
+
+The synthetic demo's recorded report includes the following fields (excerpt; IDs and hashes omitted):
+
+```json
+{
+  "status": "PASS",
+  "exit_code": 0,
+  "findings": [],
+  "before_counts": {
+    "people": 2,
+    "orders": 1
+  },
+  "integrity_check": ["ok"],
+  "foreign_key_check": []
+}
+```
+
+See [the recorded demo JSON](evidence/demo.stdout.json) for the complete example.
+
+A deliberately defective migration, such as deleting a protected business record from the synthetic `people` table, is expected to return `FAIL` with a `DATA_LOSS` finding. The [acceptance tests](tests/test_acceptance.py) exercise this and other negative cases; the success of a negative-control **test** is not a `PASS` result for the defective migration.
+
+**Exit codes**
+
+| Code | Meaning |
+| --- | --- |
+| `0` | `PASS`: all declared checks matched |
+| `1` | `FAIL`: a migration error or policy violation was detected |
+| `2` | `UNVERIFIABLE`: an input, environment, or verification condition prevented a reliable conclusion |
+
+Results are written as JSON; the test database and report are left in the new output directory for inspection.
+
+## How the policy works
+
+See [`samples/policy.json`](samples/policy.json) for a complete, runnable example. Policy version 1 defines:
+
+- `tables`: the tables to check, each with a unique, non-null text/integer `key` and explicit column rules.
+- `columns`: source-to-result column mappings with `identity`, `upper_ascii`, or `double_integer` transformations.
+- `drop_columns`: source columns explicitly allowed to disappear.
+- `allow_additions`: whether a protected table may gain new records (without validating their content).
+- `expected_schema`: the complete expected SQLite schema as a `type:name` → SQL-text map.
+
+For each declared table, every original column must be covered by a mapping or approved deletion. The current schema comparison is **exact SQL-text comparison**, so harmless formatting differences may still be reported. Review and update the expected schema deliberately when testing a real migration.
+
+The sample policy is intended only for its synthetic source database; do not assume that it is appropriate for another schema.
+
+## Verification
+
+The project has 32 acceptance scenarios, including intentional data-loss and constraint violations, plus an 80-execution comparison with a standard-library/SQLite baseline. Both approaches matched their defined expected outcomes in the recorded comparison; this **does not demonstrate a superior detection rate**.
+
+GitHub Actions tests **Ubuntu and Windows × Python 3.11, 3.12, and 3.13**. All six jobs passed in [the initial import validation (run #33)](https://github.com/KenKan964/sqlite-migration-auditor/actions/runs/43584941870). For the current branch or later changes, check [the latest Actions runs](https://github.com/KenKan964/sqlite-migration-auditor/actions).
+
+Reproduce checks locally:
+
+```sh
 python -m unittest discover -s tests -v
+python -X tracemalloc=5 tools/verify_resources.py
 python compare.py > comparison.json
 ```
 
-Exit 0: all declared contracts match; 1: violation or migration failure; 2: unverifiable/input/environment failure.
-A successful negative-control unittest is not a CLI PASS for defective data.
-Source opens mode=ro; Backup API creates trial.sqlite in an exclusive new output directory.
-Source is never migrated. Output DB and report remain for review; delete the whole newly created directory manually after review.
-Existing destinations and symlink path components are rejected. Do not use concurrently writable or adversarial directories.
+The resource test checks for unclosed SQLite connections; full details and historical evidence are in [`REPORT_ja.md`](REPORT_ja.md) and [`OSS_COMPARISON.md`](OSS_COMPARISON.md). The file [`evidence/ci_status.json`](evidence/ci_status.json) is an **older, pre-repository CI snapshot**, not the current CI status.
 
-Policy version 1 requires complete expected_schema SQL text map, plus tables with key, columns, drop_columns, allow_additions.
-Every source column of each declared table must be mapped or explicitly dropped. Keys are non-null text/integer, unique, unchanged.
-Mappings have to and transform: identity, upper_ascii, double_integer. No arbitrary expressions or executable policy.
-Schema SQL text comparison is exact (formatting differences may be rejected); provide independently reviewed expected DDL.
-Unlisted tables have schema protection only, not row preservation. Row additions are a table-level boolean, not content validation.
+## Safety and limitations
 
-ATTACH/DETACH, PRAGMA, virtual tables and extension/file functions are denied by authorizer; extensions disabled.
-ALTER may inspect/update SQLite temporary catalog internally. SQL may partially commit before failure: trial only, no rollback guarantee.
-SQL size 1MB, execution progress deadline 5s, backup deadline 10s; these are cooperative limits, not a sandbox/resource guarantee.
-Trusted local SQL only; no protection against hostile same-user filesystem races, arbitrary malicious DBs or all SQLite vulnerabilities.
-Source SHA256 is main-file evidence for quiescent fixtures, not WAL-wide immutability. Read-only SQLite may need existing WAL/SHM support.
+- **Use trusted local SQL only.** SQLite's authorizer restrictions are not a security sandbox against malicious SQL.
+- The original DB is opened read-only; the migration runs on the copy. This does not prove safety under live concurrent writes, WAL/SHM activity, hostile filesystem races, or production conditions.
+- A script may partially commit to the **test copy** before failing; no atomic rollback of arbitrary migration scripts is promised.
+- Existing output paths and symlink path components are rejected, but the tool is not designed for attacker-controlled or shared-writable directories.
+- Only declared tables have business-ID/value preservation checks. Composite keys, changing keys, content validation of newly allowed rows, and arbitrary policy transforms are not supported.
+- Reports may contain inspected values. **Do not publish private databases or confidential diagnostic JSON.** Remove generated test directories yourself after review.
+- Execution and backup deadlines are cooperative limits, not resource isolation or crash-recovery guarantees.
 
-See TECHNICAL_SPEC.md, REPORT_ja.md, SECURITY.md and OSS_COMPARISON.md. MIT; Copyright (c) 2026 KenKan964, confirmed by FIX-01 instruction.
+## Documentation
 
-## FIX-01 (2026-11-14)
+- [日本語 README](README_ja.md)
+- [Technical specification / 技術仕様](TECHNICAL_SPEC.md)
+- [Security considerations](SECURITY.md)
+- [Comparison and measured limits](OSS_COMPARISON.md)
+- [Change history](CHANGELOG.md)
+- [Acceptance evidence (Japanese)](REPORT_ja.md)
+- [MIT License](LICENSE)
 
-SQLite connections now close explicitly after the original transaction context exits.
-既存のcommit/rollbackの後にcloseを実行。readonlyソース、fixture、policy、比較、受入テストが対象。
-Linux Python3.12.14/3.13.5: 32/32 tests each, ResourceWarning=0 after forced GC.
-Python3.13 comparison: 80/80 matches; normal demo PASS/0, stderr empty.
-
-```sh
-python -X utf8 -W always::ResourceWarning tools/verify_resources.py
-python -X utf8 -W always::ResourceWarning sma.py demo --out new-demo-fix01
-python -X utf8 -W always::ResourceWarning compare.py > comparison-fix01.json
-```
-
-SMA_EVIDENCE selects the directory for per-case evidence. Use Python3.13 to observe SQLite connection ResourceWarning.
-For example, PowerShell: `$env:SMA_EVIDENCE='new-evidence'`; POSIX: `SMA_EVIDENCE=new-evidence python ...`.
-The gate forces GC three times, prints captured warnings and fails on any ResourceWarning or skipped test.
-All six GitHub Actions jobs remain NOT_RUN: dedicated repo inaccessible (API404), local gh unauthenticated.
-Public release remains HOLD. See REPORT_ja.md and evidence/ci_status.json.
+**License:** MIT · Copyright © 2026 KenKan964.
