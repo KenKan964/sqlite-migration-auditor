@@ -1,0 +1,26 @@
+{
+  "resource_gate313": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "tests_run": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "resource_warning_count": 0,
+    "gc_collections": 3,
+    "warning_filter": "always",
+    "passed": true
+  },
+  "comparison_executions": 80,
+  "comparison_all_matched": true,
+  "demo_exit_code": 0,
+  "demo_status": "PASS",
+  "demo_stderr_bytes": 0,
+  "comparison_stderr_bytes": 0,
+  "source_sha256": {
+    "sma.py": "6265945c8668e10b0e523c81ded9870bc2704931761b024e2ecfcf5176bccd8e",
+    "compare.py": "6d22addf0e2152dca6d1dbb4c6dbd6795f00ecfa7e535abd23b527bd3bfaa26a",
+    "tests/test_acceptance.py": "a4e676bad2b252e1e879e67642143139a7e60d4041bc350ed28f2ad055d12e8e",
+    "tools/verify_resources.py": "5551d7155b51b36c848c67dd96290fdcefc57f30761cdac4dca329ccf75dc37d"
+  }
+}

@@ -1,0 +1,37 @@
+test_add_column (test_acceptance.Acceptance.test_add_column) ... ok
+test_add_row (test_acceptance.Acceptance.test_add_row) ... ok
+test_approved_drop (test_acceptance.Acceptance.test_approved_drop) ... ok
+test_ascii_upper (test_acceptance.Acceptance.test_ascii_upper) ... ok
+test_attach (test_acceptance.Acceptance.test_attach) ... ok
+test_delete_row (test_acceptance.Acceptance.test_delete_row) ... ok
+test_drop (test_acceptance.Acceptance.test_drop) ... ok
+test_duplicate (test_acceptance.Acceptance.test_duplicate) ... ok
+test_empty (test_acceptance.Acceptance.test_empty) ... ok
+test_existing (test_acceptance.Acceptance.test_existing) ... ok
+test_extension (test_acceptance.Acceptance.test_extension) ... ok
+test_fk_delete (test_acceptance.Acceptance.test_fk_delete) ... ok
+test_invalid_policy (test_acceptance.Acceptance.test_invalid_policy) ... ok
+test_missing_column (test_acceptance.Acceptance.test_missing_column) ... ok
+test_normal (test_acceptance.Acceptance.test_normal) ... ok
+test_null_key (test_acceptance.Acceptance.test_null_key) ... ok
+test_orphan (test_acceptance.Acceptance.test_orphan) ... ok
+test_partial (test_acceptance.Acceptance.test_partial) ... ok
+test_pragma (test_acceptance.Acceptance.test_pragma) ... ok
+test_references (test_acceptance.Acceptance.test_references) ... ok
+test_rename (test_acceptance.Acceptance.test_rename) ... ok
+test_source_duplicate (test_acceptance.Acceptance.test_source_duplicate) ... ok
+test_symlink (test_acceptance.Acceptance.test_symlink) ... ok
+test_syntax (test_acceptance.Acceptance.test_syntax) ... ok
+test_tamper (test_acceptance.Acceptance.test_tamper) ... ok
+test_transaction (test_acceptance.Acceptance.test_transaction) ... ok
+test_transform (test_acceptance.Acceptance.test_transform) ... ok
+test_unapproved_add (test_acceptance.Acceptance.test_unapproved_add) ... ok
+test_unapproved_column (test_acceptance.Acceptance.test_unapproved_column) ... ok
+test_unicode (test_acceptance.Acceptance.test_unicode) ... ok
+test_vacuum (test_acceptance.Acceptance.test_vacuum) ... ok
+test_wrong_schema (test_acceptance.Acceptance.test_wrong_schema) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.079s
+
+OK

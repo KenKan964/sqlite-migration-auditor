@@ -1,0 +1,34 @@
+name: acceptance
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+env:
+  PYTHONUTF8: '1'
+  PYTHONWARNINGS: 'always::ResourceWarning'
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Acceptance and connection warnings
+        run: python -X tracemalloc=5 tools/verify_resources.py
+        env:
+          SMA_EVIDENCE: ci-evidence
+      - run: python sma.py demo --out ci-demo
+      - run: python compare.py > ci-comparison.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-${{ matrix.os }}-${{ matrix.python }}
+          path: |
+            ci-evidence/
+            ci-demo/
+            ci-comparison.json

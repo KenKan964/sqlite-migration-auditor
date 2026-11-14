@@ -1,0 +1,12 @@
+{
+  "python": "3.13.5",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "tests_run": 32,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "resource_warning_count": 0,
+  "gc_collections": 3,
+  "warning_filter": "always",
+  "passed": true
+}
