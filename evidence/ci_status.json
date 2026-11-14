@@ -1,0 +1,67 @@
+{
+  "status": "NOT_RUN",
+  "reason": {
+    "repository": "KenKan964/sqlite-migration-auditor",
+    "metadata_api_status": 404,
+    "interpretation": "not found OR not accessible to current connection",
+    "gh_authenticated": false,
+    "repository_create_api_available": false
+  },
+  "public_release": "HOLD",
+  "jobs": [
+    {
+      "os": "ubuntu-latest",
+      "python": "3.11",
+      "status": "NOT_RUN",
+      "commit_sha": null,
+      "run_id": null,
+      "job_id": null,
+      "url": null
+    },
+    {
+      "os": "ubuntu-latest",
+      "python": "3.12",
+      "status": "NOT_RUN",
+      "commit_sha": null,
+      "run_id": null,
+      "job_id": null,
+      "url": null
+    },
+    {
+      "os": "ubuntu-latest",
+      "python": "3.13",
+      "status": "NOT_RUN",
+      "commit_sha": null,
+      "run_id": null,
+      "job_id": null,
+      "url": null
+    },
+    {
+      "os": "windows-latest",
+      "python": "3.11",
+      "status": "NOT_RUN",
+      "commit_sha": null,
+      "run_id": null,
+      "job_id": null,
+      "url": null
+    },
+    {
+      "os": "windows-latest",
+      "python": "3.12",
+      "status": "NOT_RUN",
+      "commit_sha": null,
+      "run_id": null,
+      "job_id": null,
+      "url": null
+    },
+    {
+      "os": "windows-latest",
+      "python": "3.13",
+      "status": "NOT_RUN",
+      "commit_sha": null,
+      "run_id": null,
+      "job_id": null,
+      "url": null
+    }
+  ]
+}
