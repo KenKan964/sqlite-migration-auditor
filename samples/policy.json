@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "expected_schema": {
+    "index:people_id": "CREATE UNIQUE INDEX people_id ON people(id)",
+    "table:orders": "CREATE TABLE orders(id TEXT, person TEXT REFERENCES people(id))",
+    "table:people": "CREATE TABLE people(id TEXT, name TEXT, amount INTEGER)"
+  },
+  "tables": {
+    "people": {
+      "key": "id",
+      "columns": {
+        "id": {
+          "to": "id",
+          "transform": "identity"
+        },
+        "name": {
+          "to": "name",
+          "transform": "identity"
+        },
+        "amount": {
+          "to": "amount",
+          "transform": "identity"
+        }
+      },
+      "drop_columns": [],
+      "allow_additions": false
+    },
+    "orders": {
+      "key": "id",
+      "columns": {
+        "id": {
+          "to": "id",
+          "transform": "identity"
+        },
+        "person": {
+          "to": "person",
+          "transform": "identity"
+        }
+      },
+      "drop_columns": [],
+      "allow_additions": false
+    }
+  }
+}
