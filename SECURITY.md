@@ -8,4 +8,4 @@ Do not publish real DBs or confidential evidence. Tests use synthetic data only.
 Private vulnerability reporting is proposed for the future repository; no active contact is configured.
 Copyright confirmed as KenKan964 by FIX-01 instruction. Publisher must configure a private contact before release. CI must pass before public GO.
 
-FIX-01 explicitly closes source and trial connections; no change to trusted-SQL scope or filesystem race limitations. CI remains NOT_RUN; no public release.
+FIX-01 explicitly closes source and trial connections; no change to trusted-SQL scope or filesystem race limitations. Six GitHub Actions jobs passed on 2026-11-14 (initial import: run #33). Check the latest Actions runs after subsequent changes. Public release remains a separate decision.
